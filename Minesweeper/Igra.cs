@@ -57,7 +57,6 @@ namespace Minesweeper
             InitializeComponent();
             this.SetStyle(ControlStyles.Selectable, false);
             UcitajXml("gotovo_stanje.xml");
-            
         }
         private void btnClick(object sender, EventArgs e)
         {
@@ -130,7 +129,7 @@ namespace Minesweeper
                 int red = int.Parse(dugme.GetAttribute("Red"));
                 int kolona = int.Parse(dugme.GetAttribute("Kolona"));
                 string tag = dugme.GetAttribute("Tag");
-                string text = dugme.GetAttribute("Text");
+                string text = dugme.GetAttribute("Text");//mozda je ovde problem nzm xd jer je text prazan
                 bool enabled = bool.Parse(dugme.GetAttribute("Enabled"));
                 Button _dugme = new Button();
                 _dugme = new Button();
@@ -138,11 +137,13 @@ namespace Minesweeper
                 _dugme.Text = text;
                 _dugme.Enabled = enabled;
                 _dugme.Click += btnClick;
+                _dugme.Size = new Size(30, 30);
+                _dugme.Location = new Point(30 * red, 30 * kolona);
                 this.Controls.Add(_dugme);
                 dugmici[red, kolona] = _dugme;
                 
             }
-
+            Console.WriteLine("Hello, World!");
         }
         private void Gotovo()
         {
@@ -217,6 +218,12 @@ namespace Minesweeper
                 }
             }
         }
+
+        private void Igra_Load(object sender, EventArgs e)
+        {
+
+        }
+
         private int BrojiKomsije(int red, int kolona)
         {
             int brojKomsija = 0;
