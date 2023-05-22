@@ -217,12 +217,12 @@ namespace Minesweeper
                 }
             }
         }
-        private int BrojiKomsije(int row, int col)
+        private int BrojiKomsije(int red, int kolona)
         {
             int brojKomsija = 0;
-            for (int i = Math.Max(0, row - 1); i <= Math.Min(row + 1, velicina - 1); i++)
+            for (int i = Math.Max(0, red - 1); i <= Math.Min(red + 1, velicina - 1); i++)
             {
-                for (int j = Math.Max(0, col - 1); j <= Math.Min(col + 1, velicina - 1); j++)
+                for (int j = Math.Max(0, kolona - 1); j <= Math.Min(kolona + 1, velicina - 1); j++)
                 {
                     if (dugmici[i, j].Tag.Equals("Mina"))
                     {
