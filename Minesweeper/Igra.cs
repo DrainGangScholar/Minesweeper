@@ -17,9 +17,7 @@ namespace Minesweeper
             this.velicina = velicina;
             this.broj = broj;
 
-            timer1.Interval = 1000;
-            timer1.Enabled = true;
-            timer1.Tick += timer1_Tick;
+            
             dugmici = new System.Windows.Forms.Button[velicina, velicina];
             Random random = new Random();
             for (int i = 0; i < velicina; i++)
@@ -52,11 +50,14 @@ namespace Minesweeper
             InitializeComponent();
             stopwatch.Start();
             timer1.Start();
+            timer1.Enabled = true;
+            timer1.Tick += timer1_Tick;
         }
         public Igra()
         {
             InitializeComponent();
             this.SetStyle(ControlStyles.Selectable, false);
+            
         }
         private void btnClick(object sender, EventArgs e)
         {
@@ -83,11 +84,14 @@ namespace Minesweeper
             XmlElement roditelj = xmlDoc.CreateElement("IgraKonfiguracija");
             xmlDoc.AppendChild(roditelj);
 
-            timer1.Enabled = false;
-
+            TimeSpan elapsedTime = stopwatch.Elapsed;
+            lblTimer.Text = elapsedTime.ToString(@"mm\:ss");
+            timer1.Stop();
+            stopwatch.Stop();
             XmlElement konfiguracijaElement = xmlDoc.CreateElement("Konfiguracija");
             konfiguracijaElement.SetAttribute("Velicina", velicina.ToString());
             konfiguracijaElement.SetAttribute("Broj", broj.ToString());
+            konfiguracijaElement.SetAttribute("Vreme", lblTimer.Text);
             roditelj.AppendChild(konfiguracijaElement);
 
 
@@ -119,6 +123,8 @@ namespace Minesweeper
             XmlElement konfiguracijaElement = (XmlElement)roditelj.SelectSingleNode("Konfiguracija");
             int ucitanaVelicina = int.Parse(konfiguracijaElement.GetAttribute("Velicina"));
             int ucitanBroj = int.Parse(konfiguracijaElement.GetAttribute("Broj"));
+            string vremeValue = konfiguracijaElement.GetAttribute("Vreme");
+
 
             this.velicina = ucitanaVelicina;
             this.broj = ucitanBroj;
@@ -143,8 +149,8 @@ namespace Minesweeper
                 this.Controls.Add(_dugme);
                 dugmici[red, kolona] = _dugme;
                 
-            }
-            Console.WriteLine("Hello, World!");
+            } 
+            timer1.Enabled = true;
         }
         private void Gotovo()
         {
