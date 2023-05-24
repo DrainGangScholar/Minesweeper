@@ -1,33 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using System.Reflection.Emit;
 using System.Windows.Forms;
 using System.Xml;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Minesweeper
 {
     public partial class Igra : Form
     {
         int velicina=9, broj=10;
-        Button[,] dugmici;
-        public Igra(int velicina,int broj)
+        System.Windows.Forms.Button[,] dugmici;
+        Stopwatch stopwatch = new Stopwatch();
+        public Igra(int velicina, int broj)
         {
             this.SetStyle(ControlStyles.Selectable, false);
             this.velicina = velicina;
             this.broj = broj;
 
-            dugmici = new Button[velicina, velicina];
-            Random random=new Random();
-            for(int i = 0; i < velicina; i++)
+            timer1.Interval = 1000;
+            timer1.Enabled = true;
+            timer1.Tick += timer1_Tick;
+            dugmici = new System.Windows.Forms.Button[velicina, velicina];
+            Random random = new Random();
+            for (int i = 0; i < velicina; i++)
             {
-                for(int j = 0; j < velicina; j++)
+                for (int j = 0; j < velicina; j++)
                 {
-                    Button dugme = new Button();
+                    System.Windows.Forms.Button dugme = new System.Windows.Forms.Button();
                     dugme.Size = new Size(30, 30);
                     dugme.Location = new Point(30 * j, 30 * i);
                     dugme.Tag = "";
@@ -40,8 +39,8 @@ namespace Minesweeper
             int brojPostavljenihMina = 0;
             while (brojPostavljenihMina < broj)
             {
-                int randRow = random.Next(0, velicina-1);
-                int randCol = random.Next(0, velicina-1);
+                int randRow = random.Next(0, velicina - 1);
+                int randCol = random.Next(0, velicina - 1);
 
                 if (!dugmici[randRow, randCol].Tag.Equals("Mina"))
                 {
@@ -51,16 +50,17 @@ namespace Minesweeper
             }
 
             InitializeComponent();
+            stopwatch.Start();
+            timer1.Start();
         }
         public Igra()
         {
             InitializeComponent();
             this.SetStyle(ControlStyles.Selectable, false);
-            UcitajXml("gotovo_stanje.xml");
         }
         private void btnClick(object sender, EventArgs e)
         {
-            Button dugme = (Button)sender;
+            System.Windows.Forms.Button dugme = (System.Windows.Forms.Button)sender;
 
             if (dugme.Tag.Equals("Mina"))
             {
@@ -83,6 +83,7 @@ namespace Minesweeper
             XmlElement roditelj = xmlDoc.CreateElement("IgraKonfiguracija");
             xmlDoc.AppendChild(roditelj);
 
+            timer1.Enabled = false;
 
             XmlElement konfiguracijaElement = xmlDoc.CreateElement("Konfiguracija");
             konfiguracijaElement.SetAttribute("Velicina", velicina.ToString());
@@ -121,7 +122,7 @@ namespace Minesweeper
 
             this.velicina = ucitanaVelicina;
             this.broj = ucitanBroj;
-            dugmici = new Button[ucitanaVelicina, ucitanBroj];
+            dugmici = new System.Windows.Forms.Button[ucitanaVelicina, ucitanBroj];
 
             XmlElement stanje = (XmlElement)roditelj.SelectSingleNode("Stanje");
             foreach (XmlElement dugme in stanje.SelectNodes("Dugme"))
@@ -131,8 +132,8 @@ namespace Minesweeper
                 string tag = dugme.GetAttribute("Tag");
                 string text = dugme.GetAttribute("Text");//mozda je ovde problem nzm xd jer je text prazan
                 bool enabled = bool.Parse(dugme.GetAttribute("Enabled"));
-                Button _dugme = new Button();
-                _dugme = new Button();
+                System.Windows.Forms.Button _dugme = new System.Windows.Forms.Button();
+                _dugme = new System.Windows.Forms.Button();
                 _dugme.Tag = string.IsNullOrEmpty(tag)?string.Empty:tag;
                 _dugme.Text = text;
                 _dugme.Enabled = enabled;
@@ -147,6 +148,8 @@ namespace Minesweeper
         }
         private void Gotovo()
         {
+            stopwatch.Stop();
+            timer1.Stop();
             for (int i = 0; i < velicina; i++)
             {
                 for (int j = 0; j < velicina; j++)
@@ -180,7 +183,7 @@ namespace Minesweeper
 
             this.Close();
         }
-        private void NijeMina(Button dugme)
+        private void NijeMina(System.Windows.Forms.Button dugme)
         {
             int red = -1, kolona = -1;
 
@@ -208,7 +211,7 @@ namespace Minesweeper
                 {
                     for (int j = Math.Max(0, kolona - 1); j <= Math.Min(kolona + 1, velicina - 1); j++)
                     {
-                        Button komsija = dugmici[i, j];
+                        System.Windows.Forms.Button komsija = dugmici[i, j];
                         if (komsija.Enabled)
                         {
                             komsija.Enabled = false;
@@ -222,6 +225,32 @@ namespace Minesweeper
         private void Igra_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void strpSaveXML_Click(object sender, EventArgs e)
+        {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+                openFileDialog.Filter = "XML Files (*.xml)|*.xml";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string selectedFile = openFileDialog.FileName;
+                    UpisiXml(selectedFile);
+                }
+        }
+
+        private void strpLoadXML_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.InitialDirectory = Environment.CurrentDirectory;
+            openFileDialog.Filter = "XML Files (*.xml)|*.xml";
+
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                string selectedFile = openFileDialog.FileName;
+                UcitajXml(selectedFile);
+            }
         }
 
         private int BrojiKomsije(int red, int kolona)
@@ -239,5 +268,12 @@ namespace Minesweeper
             }
             return brojKomsija;
         }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            TimeSpan elapsedTime = stopwatch.Elapsed;
+            lblTimer.Text = elapsedTime.ToString(@"mm\:ss");
+        }
+
     }
 }

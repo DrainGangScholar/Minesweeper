@@ -44,7 +44,10 @@
             }
             else
             {
-                MessageBox.Show("Unesite ispravne brojeve u oba polja.");
+                //MessageBox.Show("Unesite ispravne brojeve u oba polja.");
+                Igra igraForm = new Igra();
+                igraForm.FormClosed += (s, args) => this.Show();
+                igraForm.Show();
             }
         }
 
